@@ -28,8 +28,9 @@
 .defaults <- list(niter = 1000,
                   standardize.data = TRUE,
                   prior.level.sd = 0.01,
-                  nseasons = 1,
-                  season.duration = 1,
+                  # nseasons = 1,
+                  # season.duration = 1,
+                  seasons = NULL,
                   dynamic.regression = FALSE)
 
 FormatInputData <- function(data) {

@@ -100,7 +100,7 @@ FormatInputForConstructModel <- function(data, model.args) {
 
   # (Re-)parse <model.args>, fill gaps using <.defaults>
   # (defined in impact_analysis.R)
-  model.args <- ParseArguments(model.args, .defaults)
+  model.args <- ParseArguments(model.args, .defaults, TRUE)  # allow extra args
 
   # Check those parts of <model.args> that are used in this file
   # Check <niter>
@@ -121,21 +121,30 @@ FormatInputForConstructModel <- function(data, model.args) {
   assert_that(length(model.args$prior.level.sd) == 1)
   assert_that(model.args$prior.level.sd > 0)
 
-  # Check <nseasons>
-  assert_that(length(model.args$nseasons) == 1)
-  assert_that(is.numeric(model.args$nseasons))
-  assert_that(!is.na(model.args$nseasons))
-  assert_that(is.wholenumber(model.args$nseasons))
-  assert(model.args$nseasons >= 1,
-         "nseasons cannot be 0; use 1 in order not to have seaonsal components")
-
-  # Check <season.duration>
-  assert_that(length(model.args$season.duration) == 1)
-  assert_that(is.numeric(model.args$season.duration))
-  assert_that(!is.na(model.args$season.duration))
-  assert_that(is.wholenumber(model.args$season.duration))
-  assert_that(model.args$season.duration >= 1)
-
+  # Check <seasons>
+  if (!is.null(model.args$seasons)) {
+    assert_that(is.list(model.args$seasons))
+    assert_that(length(model.args$seasons) >= 1)
+    
+    # Check each season component
+    for (season in model.args$seasons) {
+      
+      # Check <period>
+      assert_that(length(season$period) == 1)
+      assert_that(is.numeric(season$period))
+      assert_that(!is.na(season$period))
+      assert_that(is.wholenumber(season$period))
+      assert(season$period >= 1)
+    
+      # Check <season.duration>
+      assert_that(length(season$duration) == 1)
+      assert_that(is.numeric(season$duration))
+      assert_that(!is.na(season$duration))
+      assert_that(is.wholenumber(season$duration))
+      assert_that(season$duration >= 1)
+    }
+  }
+  
   # Check <dynamic.regression>
   assert_that(is.logical(model.args$dynamic.regression))
   assert_that(!is.na(model.args$dynamic.regression))
@@ -185,11 +194,13 @@ ConstructModel <- function(data, model.args = NULL) {
                       sample.size = kLocalLevelPriorSampleSize)
   ss <- AddLocalLevel(ss, y, sigma.prior = sd.prior)
 
-  # Add seasonal component?
-  if (model.args$nseasons > 1) {
-    ss <- AddSeasonal(ss, y,
-                      nseasons = model.args$nseasons,
-                      season.duration = model.args$season.duration)
+  # Add seasonal components?
+  if (!is.null(model.args$seasons)) {
+    for (season in model.args$seasons) {
+      ss <- AddSeasonal(ss, y,
+                        nseasons = season$period,
+                        season.duration = season$duration)
+    }
   }
 
   # No regression?

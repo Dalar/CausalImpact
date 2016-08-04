@@ -1,11 +1,11 @@
-Package: CausalImpact
+Package: CausalImpactV2
 Title: Inferring causal impact using Bayesian structural time-series models
-Date: 2016-04-16
+Date: 2016-08-04
 Author: Kay H. Brodersen <kbrodersen@google.com>
 Maintainer: Kay H. Brodersen <kbrodersen@google.com>
 Description: Implements a Bayesian approach to causal impact estimation in time series, as described in Brodersen et al., Annals of Applied Statistics (2015). See the package documentation on GitHub to get started.
 Copyright: Copyright (C) 2016 Google, Inc.
-Version: 1.0.5
+Version: 1.0.6
 License: Apache License 2.0 | file LICENSE
 Imports: assertthat, dplyr, ggplot2, zoo
 Depends: bsts
